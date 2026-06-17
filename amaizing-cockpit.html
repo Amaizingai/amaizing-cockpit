@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#06040a">
+  <title>Amaizing Cockpit</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <span class="logo">AMAIZING</span>
+      <button class="author-btn" id="authorBtn">Søren ▾</button>
+    </header>
+
+    <!-- Skærme -->
+    <main id="screen-capture" class="screen active">
+      <p class="screen-greeting" id="greeting"></p>
+      <h1 class="screen-title">Hvad tænker du?</h1>
+
+      <div class="capture-area">
+        <button class="record-btn" id="recordBtn" aria-label="Optag tanke">
+          <span class="record-icon">🎤</span>
+        </button>
+        <p class="record-hint" id="recordHint">Tryk for at optage</p>
+        <div class="record-timer hidden" id="recordTimer">0:00</div>
+        <div class="waveform hidden" id="waveform">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="category-chips">
+        <button class="chip active" data-category="idea">💡 Idé</button>
+        <button class="chip" data-category="lead">🎯 Lead</button>
+        <button class="chip" data-category="task">✅ Opgave</button>
+        <button class="chip" data-category="note">📝 Note</button>
+      </div>
+
+      <div class="transcript-preview hidden" id="transcriptPreview">
+        <p class="transcript-text" id="transcriptText"></p>
+        <div class="transcript-actions">
+          <button class="btn-save" id="saveBtn">Gem</button>
+          <button class="btn-discard" id="discardBtn">Slet</button>
+        </div>
+      </div>
+
+      <div class="last-capture hidden" id="lastCapture"></div>
+    </main>
+
+    <main id="screen-ideas" class="screen">
+      <div class="ideas-header">
+        <h1 class="screen-title">Idé-board</h1>
+        <button class="btn-new-idea" id="newIdeaBtn">+ Ny note</button>
+      </div>
+
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="all">Alle</button>
+        <button class="filter-tab" data-filter="idea">💡 Idéer</button>
+        <button class="filter-tab" data-filter="lead">🎯 Leads</button>
+        <button class="filter-tab" data-filter="task">✅ Opgaver</button>
+        <button class="filter-tab" data-filter="note">📝 Noter</button>
+      </div>
+
+      <div class="ideas-list" id="ideasList"></div>
+    </main>
+
+    <main id="screen-log" class="screen">
+      <h1 class="screen-title">Log</h1>
+      <div class="log-list" id="logList"></div>
+    </main>
+
+    <main id="screen-settings" class="screen">
+      <h1 class="screen-title">Indstillinger</h1>
+      <div class="settings-section">
+        <label class="settings-label">Hvem er du?</label>
+        <div class="author-options">
+          <button class="author-option active" data-author="Søren">Søren</button>
+          <button class="author-option" data-author="Rooba">Rooba</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bundnavigation -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-screen="capture">🏠<span>Optag</span></button>
+    <button class="nav-btn" data-screen="ideas">💡<span>Idéer</span></button>
+    <button class="nav-btn" data-screen="log">📋<span>Log</span></button>
+    <button class="nav-btn" data-screen="settings">⚙️<span>Mere</span></button>
+  </nav>
+
+  <!-- Toast notifikation -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script type="module" src="capture.js"></script>
+  <script type="module" src="ideas.js"></script>
+  <script type="module" src="nav.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
+</body>
+</html>
