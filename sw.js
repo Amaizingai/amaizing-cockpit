@@ -1,5 +1,5 @@
 // sw.js — cache app-filer til offline-brug
-const CACHE = 'cockpit-v1';
+const CACHE = 'cockpit-v2';
 const FILES = ['./amaizing-cockpit.html', './styles.css', './capture.js',
                './store.js', './ai.js', './ideas.js', './nav.js'];
 
