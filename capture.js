@@ -87,6 +87,8 @@ function showIdle() {
 function showTranscript(text) {
   transcriptText.textContent = text;
   transcriptPreview.classList.remove('hidden');
+  saveBtn.classList.remove('hidden');
+  discardBtn.classList.remove('hidden');
   const suggested = suggestCategory(text);
   setCategory(suggested);
 }
@@ -137,13 +139,22 @@ function initRecognition() {
       else interim += t;
     }
     currentText = (currentText + final).trim();
+    // Vis tekst løbende under optagelse
     transcriptText.textContent = currentText || interim;
+    transcriptPreview.classList.remove('hidden');
+    saveBtn.classList.add('hidden');
+    discardBtn.classList.add('hidden');
   };
 
   r.onerror = (e) => {
     console.error('Speech error:', e.error);
     if (e.error !== 'no-speech') showToast('Mikrofon-fejl: ' + e.error);
     stopRecording();
+  };
+
+  // iOS Safari stopper recognition automatisk — vis transcript alligevel
+  r.onend = () => {
+    if (isRecording) stopRecording();
   };
 
   return r;
