@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAD-tegningsautomatisering — ROI-beregner · Amaizing</title>
+<style>
+  :root {
+    --bg:      #06040a;
+    --panel:   #130c1b;
+    --panel2:  #1a1024;
+    --copper:  #d89a74;
+    --lcopper: #f1c5a7;
+    --white:   #f5f1f7;
+    --muted:   #c9bfce;
+    --body:    #f5f1f7;
+    --green:   #5dbf8a;
+    --h2:      #c47a3e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--body);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--panel);
+    border-bottom: 2px solid var(--copper);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .header-logo {
+    width: 48px; height: 48px;
+    background: var(--copper);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 22px; color: var(--bg);
+    letter-spacing: -1px;
+  }
+  .header-title { flex: 1; }
+  .header-title h1 { font-size: 15px; color: var(--white); font-weight: 700; }
+  .header-title p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .header-tag {
+    font-size: 11px; color: var(--copper);
+    background: rgba(216,154,116,0.12);
+    border: 1px solid rgba(216,154,116,0.3);
+    padding: 4px 12px; border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* LAYOUT */
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  .full { grid-column: 1 / -1; }
+
+  /* KORT */
+  .card {
+    background: var(--panel);
+    border: 1px solid rgba(216,154,116,0.2);
+    border-radius: 12px;
+    padding: 28px;
+  }
+  .card h2 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--copper);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(216,154,116,0.2);
+  }
+
+  /* INPUT */
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .field-row { display: flex; align-items: center; gap: 10px; }
+  .field input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--panel2);
+    outline: none;
+    cursor: pointer;
+  }
+  .field input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--copper);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+  }
+  .field input[type=number] {
+    width: 100%;
+    background: var(--panel2);
+    border: 1px solid rgba(216,154,116,0.25);
+    border-radius: 8px;
+    color: var(--white);
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input[type=number]:focus {
+    border-color: var(--copper);
+  }
+  .field-value {
+    min-width: 80px;
+    text-align: right;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--copper);
+  }
+  .field-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* REDUCER */
+  .reducer-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .reducer-btn {
+    flex: 1;
+    background: var(--panel2);
+    border: 1px solid rgba(216,154,116,0.2);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .reducer-btn:hover { border-color: var(--copper); color: var(--copper); }
+  .reducer-btn.active {
+    background: rgba(216,154,116,0.18);
+    border-color: var(--copper);
+    color: var(--copper);
+  }
+
+  /* RESULTATER */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .result-box {
+    background: var(--panel2);
+    border: 1px solid rgba(216,154,116,0.15);
+    border-radius: 10px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .result-box.highlight {
+    background: rgba(216,154,116,0.1);
+    border-color: var(--copper);
+  }
+  .result-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .result-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--copper);
+    line-height: 1.1;
+  }
+  .result-value.green { color: var(--green); }
+  .result-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* BREAK-EVEN BAR */
+  .payback-section { margin-top: 4px; }
+  .payback-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .payback-bar-bg {
+    height: 10px;
+    background: var(--panel2);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .payback-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--copper), var(--lcopper));
+    border-radius: 5px;
+    transition: width 0.4s ease;
+    min-width: 4px;
+  }
+
+  /* FORUDSÆTNINGER NOTE */
+  .note {
+    background: var(--panel2);
+    border-left: 3px solid var(--copper);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+  .note strong { color: var(--copper); }
+
+  /* TABEL */
+  .scenario-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .scenario-table th {
+    background: var(--panel2);
+    color: var(--copper);
+    font-weight: 700;
+    padding: 10px 12px;
+    text-align: center;
+    border: 1px solid rgba(216,154,116,0.15);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .scenario-table td {
+    padding: 9px 12px;
+    text-align: center;
+    border: 1px solid rgba(216,154,116,0.1);
+    color: var(--white);
+  }
+  .scenario-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .scenario-table tr.active-row td { background: rgba(216,154,116,0.1); color: var(--copper); font-weight: 700; }
+  .scenario-table td:first-child { text-align: left; color: var(--muted); }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid rgba(216,154,116,0.12);
+  }
+  .footer a { color: var(--copper); text-decoration: none; }
+
+  @media (max-width: 680px) {
+    .main { grid-template-columns: 1fr; }
+    .results-grid { grid-template-columns: 1fr 1fr; }
+    .header { padding: 16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">
+    <h1>CAD ROI-beregner</h1>
+    <p>Indtast jeres tal og se effekten med det samme</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- INPUT VENSTRE -->
+  <div class="card">
+    <h2>Jeres virksomhed</h2>
+
+    <div class="field">
+      <label>Tegninger pr. år</label>
+      <div class="field-row">
+        <input type="range" id="sld-tegninger" min="100" max="10000" step="100" value="3000"
+               oninput="sync('tegninger', this.value); beregn()">
+        <span class="field-value" id="val-tegninger">3.000</span>
+      </div>
+      <div class="field-hint">Antal CAD-tegninger der oprettes manuelt om året</div>
+    </div>
+
+    <div class="field">
+      <label>Gennemsnitlig tid pr. tegning (minutter)</label>
+      <div class="field-row">
+        <input type="range" id="sld-minutter" min="10" max="120" step="5" value="30"
+               oninput="sync('minutter', this.value); beregn()">
+        <span class="field-value" id="val-minutter">30 min</span>
+      </div>
+      <div class="field-hint">Fra tom model til færdigt tegningsgrundlag</div>
+    </div>
+
+    <div class="field">
+      <label>Intern konstruktørtimepris (kr.)</label>
+      <div class="field-row">
+        <input type="range" id="sld-timepris" min="300" max="1000" step="25" value="550"
+               oninput="sync('timepris', this.value); beregn()">
+        <span class="field-value" id="val-timepris">550 kr.</span>
+      </div>
+      <div class="field-hint">Inkl. løn, overhead og kapacitetsbinding</div>
+    </div>
+
+    <div class="field">
+      <label>Forventet tidsbesparelse</label>
+      <div class="reducer-row">
+        <div class="reducer-btn" onclick="setReduktion(50)">50%<br><span style="font-weight:400;font-size:10px">Tunge tegn.</span></div>
+        <div class="reducer-btn active" onclick="setReduktion(60)">60%<br><span style="font-weight:400;font-size:10px">Realistisk</span></div>
+        <div class="reducer-btn" onclick="setReduktion(70)">70%<br><span style="font-weight:400;font-size:10px">God standard.</span></div>
+        <div class="reducer-btn" onclick="setReduktion(80)">80%<br><span style="font-weight:400;font-size:10px">Optimistisk</span></div>
+      </div>
+      <div class="field-hint">60% er realistisk for de fleste konstruktionsmiljøer</div>
+    </div>
+
+    <div class="field">
+      <label>Implementeringspris (kr.)</label>
+      <input type="number" id="inp-implpris" value="100000" min="10000" max="500000" step="5000"
+             oninput="beregn()">
+      <div class="field-hint">Justér efter jeres konkrete scope</div>
+    </div>
+  </div>
+
+  <!-- RESULTATER HØJRE -->
+  <div class="card">
+    <h2>Effekten for jer</h2>
+
+    <div class="results-grid">
+      <div class="result-box">
+        <div class="result-label">Manuel udgift/år</div>
+        <div class="result-value" id="res-manuel">—</div>
+        <div class="result-sub">Nuværende intern kostpris</div>
+      </div>
+      <div class="result-box highlight">
+        <div class="result-label">Årlig besparelse</div>
+        <div class="result-value green" id="res-besparelse">—</div>
+        <div class="result-sub" id="res-besparelse-sub">—</div>
+      </div>
+      <div class="result-box">
+        <div class="result-label">Frigivne timer/år</div>
+        <div class="result-value" id="res-timer">—</div>
+        <div class="result-sub">Til reel konstruktion</div>
+      </div>
+      <div class="result-box">
+        <div class="result-label">Nettogevinst år 1</div>
+        <div class="result-value green" id="res-netto">—</div>
+        <div class="result-sub">Efter investering</div>
+      </div>
+      <div class="result-box highlight">
+        <div class="result-label">Tilbagebetalingstid</div>
+        <div class="result-value" id="res-tilbageb">—</div>
+        <div class="result-sub">Måneder</div>
+      </div>
+      <div class="result-box">
+        <div class="result-label">ROI år 1</div>
+        <div class="result-value green" id="res-roi">—</div>
+        <div class="result-sub">Nettoafkast</div>
+      </div>
+    </div>
+
+    <div class="payback-section">
+      <div class="payback-label">
+        <span>Investering betalt hjem</span>
+        <span id="payback-pct-label">—</span>
+      </div>
+      <div class="payback-bar-bg">
+        <div class="payback-bar-fill" id="payback-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:20px">
+      <strong>Estimat — ikke garanti.</strong> Faktisk besparelse afhænger af jeres CAD-disciplin,
+      tegningsstandard og variation. Vi beregner et kundespecifikt estimat i foranalysen.
+      <br><br>
+      <strong>275 kr. pr. tegning</strong> er den typiske interne kostpris for manuel oprettelse.
+      Justér tidsforbruget til jeres virkelighed.
+    </div>
+  </div>
+
+  <!-- SCENARIETABEL -->
+  <div class="card full">
+    <h2>Sammenligning af scenarier</h2>
+    <table class="scenario-table" id="scenario-table">
+      <thead>
+        <tr>
+          <th>Tidsbesparelse</th>
+          <th>Besparelse/år</th>
+          <th>Nettogevinst år 1</th>
+          <th>Tilbagebetaling</th>
+          <th>ROI år 1</th>
+          <th>Frigivne timer</th>
+        </tr>
+      </thead>
+      <tbody id="scenario-body"></tbody>
+    </table>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px">
+      * 80%-scenariet kræver høj standardisering og ensartet modelstruktur.
+      Den aktive række svarer til din valgte besparelse ovenfor.
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Amaizing ApS · <a href="mailto:Rooba@amaizing.dk">Rooba@amaizing.dk</a> · +45 26 20 85 64 ·
+  <a href="https://amaizing.dk">amaizing.dk</a>
+  <br>
+  <span style="margin-top:6px;display:block">
+    Dette værktøj er udelukkende til intern brug og kundemøder. Tallene er estimater.
+  </span>
+</div>
+
+<script>
+let reduktion = 60;
+
+function fmt(n) {
+  return n.toLocaleString('da-DK') + ' kr.';
+}
+function fmtN(n) {
+  return n.toLocaleString('da-DK');
+}
+
+function setReduktion(pct) {
+  reduktion = pct;
+  document.querySelectorAll('.reducer-btn').forEach(b => b.classList.remove('active'));
+  const btns = document.querySelectorAll('.reducer-btn');
+  const map = {50:0, 60:1, 70:2, 80:3};
+  if (map[pct] !== undefined) btns[map[pct]].classList.add('active');
+  beregn();
+}
+
+function sync(field, val) {
+  val = parseInt(val);
+  if (field === 'tegninger') {
+    document.getElementById('val-tegninger').textContent = fmtN(val);
+  } else if (field === 'minutter') {
+    document.getElementById('val-minutter').textContent = val + ' min';
+  } else if (field === 'timepris') {
+    document.getElementById('val-timepris').textContent = fmtN(val) + ' kr.';
+  }
+}
+
+function beregn() {
+  const tegninger   = parseInt(document.getElementById('sld-tegninger').value);
+  const minutter    = parseInt(document.getElementById('sld-minutter').value);
+  const timepris    = parseInt(document.getElementById('sld-timepris').value);
+  const implpris    = parseInt(document.getElementById('inp-implpris').value) || 100000;
+
+  const timerPrTegning = minutter / 60;
+  const manuel   = Math.round(tegninger * timerPrTegning * timepris);
+  const bespar   = Math.round(manuel * reduktion / 100);
+  const timer    = Math.round(tegninger * timerPrTegning * reduktion / 100);
+  const netto    = bespar - implpris;
+  const tilbage  = bespar > 0 ? (implpris / (bespar / 12)) : 99;
+  const roi      = implpris > 0 ? Math.round((netto / implpris) * 100) : 0;
+
+  document.getElementById('res-manuel').textContent     = fmt(manuel);
+  document.getElementById('res-besparelse').textContent = fmt(bespar);
+  document.getElementById('res-besparelse-sub').textContent = reduktion + '% tidsbesparelse';
+  document.getElementById('res-timer').textContent      = fmtN(timer) + ' timer';
+  document.getElementById('res-netto').textContent      = netto >= 0 ? fmt(netto) : '-' + fmt(-netto);
+  document.getElementById('res-tilbageb').textContent   = tilbage < 24 ? tilbage.toFixed(1) + ' mdr.' : '> 24 mdr.';
+  document.getElementById('res-roi').textContent        = roi + '%';
+
+  // Payback bar (maks 24 mdr = 100%)
+  const pct = Math.min(100, Math.max(0, Math.round((1 - tilbage/24) * 100)));
+  document.getElementById('payback-bar').style.width = pct + '%';
+  document.getElementById('payback-pct-label').textContent =
+    tilbage < 24 ? 'Betalt hjem på ' + tilbage.toFixed(1) + ' mdr.' : 'Over 2 år';
+
+  // Scenarietabel
+  const scenarier = [50, 60, 70, 80];
+  const labels = ['50% (tunge tegninger)', '60% (realistisk)', '70% (god standardisering)', '80% (optimistisk)*'];
+  const tbody = document.getElementById('scenario-body');
+  tbody.innerHTML = '';
+  scenarier.forEach((pctS, i) => {
+    const b = Math.round(manuel * pctS / 100);
+    const t = Math.round(tegninger * timerPrTegning * pctS / 100);
+    const n = b - implpris;
+    const tb = b > 0 ? (implpris / (b / 12)) : 99;
+    const r = implpris > 0 ? Math.round((n / implpris) * 100) : 0;
+    const tr = document.createElement('tr');
+    if (pctS === reduktion) tr.className = 'active-row';
+    tr.innerHTML = `
+      <td>${labels[i]}</td>
+      <td>${fmt(b)}</td>
+      <td>${n >= 0 ? fmt(n) : '-' + fmt(-n)}</td>
+      <td>${tb < 24 ? tb.toFixed(1) + ' mdr.' : '> 24 mdr.'}</td>
+      <td>${r}%</td>
+      <td>${fmtN(t)} timer</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Init
+beregn();
+</script>
+</body>
+</html>

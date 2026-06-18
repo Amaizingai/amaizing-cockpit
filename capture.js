@@ -33,6 +33,7 @@ let isRecording  = false;
 let timerInterval = null;
 let seconds      = 0;
 let currentText  = '';
+let lastInterim  = '';   // iOS fallback: interim tekst inden onend
 let selectedCategory = 'idea';
 
 // Kategori-valg
@@ -139,6 +140,7 @@ function initRecognition() {
       else interim += t;
     }
     currentText = (currentText + final).trim();
+    if (interim) lastInterim = interim; // gem seneste interim som iOS-fallback
     // Vis tekst løbende under optagelse
     transcriptText.textContent = currentText || interim;
     transcriptPreview.classList.remove('hidden');
@@ -167,6 +169,7 @@ function startRecording() {
     return;
   }
   currentText = '';
+  lastInterim = '';
   isRecording = true;
   showRecording();
   transcriptPreview.classList.add('hidden');
@@ -181,8 +184,11 @@ function stopRecording() {
     recognition.stop();
     recognition = null;
   }
-  if (currentText.trim()) {
-    showTranscript(currentText.trim());
+  // iOS: brug lastInterim som fallback hvis isFinal aldrig fyrede
+  const textToShow = currentText.trim() || lastInterim.trim();
+  if (textToShow) {
+    currentText = textToShow;
+    showTranscript(textToShow);
   }
 }
 
@@ -193,6 +199,7 @@ recordBtn.addEventListener('click', () => {
 
 saveBtn.addEventListener('click', () => {
   if (!currentText.trim()) return;
+  lastInterim = '';
   const item = save({ text: currentText, category: selectedCategory, author: getAuthor() });
   hideTranscript();
   renderLastCapture(item);
