@@ -279,16 +279,44 @@
   }
   .footer a { color: var(--copper); text-decoration: none; }
 
+  /* TILBAGE-KNAP */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(216,154,116,0.12);
+    border: 1px solid rgba(216,154,116,0.3);
+    border-radius: 8px;
+    color: var(--copper);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .back-btn:hover { background: rgba(216,154,116,0.22); }
+
+  /* TABEL SCROLL PÅ MOBIL */
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
   @media (max-width: 680px) {
-    .main { grid-template-columns: 1fr; }
+    .main { grid-template-columns: 1fr; padding: 20px 16px 40px; }
     .results-grid { grid-template-columns: 1fr 1fr; }
-    .header { padding: 16px 20px; }
+    .header { padding: 12px 16px; gap: 12px; }
+    .header-logo { width: 36px; height: 36px; font-size: 16px; }
+    .header-title h1 { font-size: 13px; }
+    .header-title p { font-size: 11px; }
+    .scenario-table { font-size: 11px; }
+    .scenario-table th, .scenario-table td { padding: 8px 8px; }
   }
 </style>
 </head>
 <body>
 
 <div class="header">
+  <a class="back-btn" href="amaizing-cockpit.html">← Cockpit</a>
   <div class="header-title">
     <h1>CAD ROI-beregner</h1>
     <p>Indtast jeres tal og se effekten med det samme</p>
@@ -409,7 +437,7 @@
   <!-- SCENARIETABEL -->
   <div class="card full">
     <h2>Sammenligning af scenarier</h2>
-    <table class="scenario-table" id="scenario-table">
+    <div class="table-scroll"><table class="scenario-table" id="scenario-table">
       <thead>
         <tr>
           <th>Tidsbesparelse</th>
@@ -421,7 +449,7 @@
         </tr>
       </thead>
       <tbody id="scenario-body"></tbody>
-    </table>
+    </table></div>
     <div style="font-size:11px;color:var(--muted);margin-top:10px">
       * 80%-scenariet kræver høj standardisering og ensartet modelstruktur.
       Den aktive række svarer til din valgte besparelse ovenfor.

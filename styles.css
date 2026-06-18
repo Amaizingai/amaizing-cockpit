@@ -398,20 +398,29 @@ html, body {
   transition: opacity 0.3s;
 }
 
-/* ── ROI-skærm ── */
-.screen-roi {
-  padding: 0;
+/* ── ROI-link-knap på forsiden ── */
+.roi-link-btn {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 24px 0 8px;
+  padding: 18px 24px;
+  background: rgba(216,154,116,0.08);
+  border: 1px solid rgba(216,154,116,0.3);
+  border-radius: var(--radius);
+  color: var(--copper);
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
 }
-
-.screen-roi iframe {
-  flex: 1;
-  width: 100%;
-  height: calc(100vh - var(--nav-height) - 48px); /* 48px = app-header */
-  border: none;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+.roi-link-btn:hover { background: rgba(216,154,116,0.16); }
+.roi-link-sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
 }
 
 .hidden { display: none !important; }
