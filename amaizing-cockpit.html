@@ -50,11 +50,6 @@
       </div>
 
       <div class="last-capture hidden" id="lastCapture"></div>
-
-      <a class="roi-link-btn" href="roi.html">
-        🔢 ROI-beregner
-        <span class="roi-link-sub">Beregn besparelse for din kunde</span>
-      </a>
     </main>
 
     <main id="screen-ideas" class="screen">
@@ -79,6 +74,28 @@
       <div class="log-list" id="logList"></div>
     </main>
 
+    <main id="screen-products" class="screen">
+      <h1 class="screen-title">Produkter</h1>
+
+      <div class="product-card">
+        <div class="product-header">
+          <span class="product-icon">⚙️</span>
+          <div>
+            <div class="product-name">CAD Optimering</div>
+            <div class="product-desc">Automatisering af CAD-tegningsprocesser med iLogic og AI</div>
+          </div>
+        </div>
+        <div class="product-actions">
+          <a class="product-btn product-btn--ghost" href="#" aria-disabled="true">
+            📄 Salgsdokument <span class="product-soon">kommer snart</span>
+          </a>
+          <a class="product-btn product-btn--primary" href="roi.html">
+            🔢 ROI-beregner
+          </a>
+        </div>
+      </div>
+    </main>
+
     <main id="screen-settings" class="screen">
       <h1 class="screen-title">Indstillinger</h1>
       <div class="settings-section">
@@ -96,7 +113,8 @@
   <nav class="bottom-nav">
     <button class="nav-btn active" data-screen="capture">🏠<span>Optag</span></button>
     <button class="nav-btn" data-screen="ideas">💡<span>Idéer</span></button>
-<button class="nav-btn" data-screen="log">📋<span>Log</span></button>
+    <button class="nav-btn" data-screen="products">📦<span>Produkter</span></button>
+    <button class="nav-btn" data-screen="log">📋<span>Log</span></button>
     <button class="nav-btn" data-screen="settings">⚙️<span>Mere</span></button>
   </nav>
 
